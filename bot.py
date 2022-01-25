@@ -6,7 +6,7 @@ from discord import RawMessageDeleteEvent, RawMessageUpdateEvent
 from discord.abc import GuildChannel
 from discord.ext.commands import Bot
 
-from documents import Message
+from documents import Message, database_init
 
 logger = logging.getLogger()
 intents = discord.Intents(
@@ -22,7 +22,13 @@ class BackupBot(Bot):
     def __init__(self):
         super().__init__(intents=intents, description=description, command_prefix=";;")
 
+    @staticmethod
+    async def on_connect():
+        """Connection to Discord event."""
+        await database_init()
+
     async def on_ready(self):
+        """Bot is ready event."""
         logger.info(f"Logged in as {self.user} (ID: {self.user.id})\n\n")
 
     async def on_message(self, message: discord.Message):

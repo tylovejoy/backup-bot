@@ -1,3 +1,5 @@
 motor~=2.5.1
 beanie~=1.8.12
 discord.py~=1.7.3
+pymongo~=3.12.3
+dnspython~=2.2.0
