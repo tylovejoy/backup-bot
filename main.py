@@ -4,13 +4,8 @@ from os import environ
 import discord
 from discord.ext import commands
 
+from bot import BackupBot
 from documents import Message
-
-intents = discord.Intents.all()
-intents.presences = False
-
-bot = commands.Bot(command_prefix='?', description="", intents=intents)
-
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -22,19 +17,7 @@ consoleHandle.setFormatter(
 )
 logger.addHandler(consoleHandle)
 
-
-@bot.event
-async def on_ready():
-    logger.info(f"Logged in as {bot.user} (ID: {bot.user.id})\n\n")
-
-
-@bot.event
-async def on_message(message):
-    await Message(
-        name=message.name,
-        content=message.content,
-        timestamp=message.created_at,
-    ).insert()
+bot = BackupBot()
 
 
 @bot.command()
@@ -58,7 +41,6 @@ async def backup(ctx: discord.ext.commands.Context):
             )
         await Message.insert_many(documents)
 
+
 TOKEN = environ["TOKEN"]
 bot.run(TOKEN)
-
-

@@ -1,8 +1,8 @@
+from datetime import datetime
 from typing import List
 
 import motor
 from beanie import Document, init_beanie
-from datetime import datetime
 
 
 class Message(Document):
@@ -20,9 +20,9 @@ class Channels(Document):
 
 async def init():
     # Crete Motor client
-    client = motor.motor_asyncio.AsyncIOMotorClient(
-        "mongodb://user:pass@host:27017"
-    )
+    client = motor.motor_asyncio.AsyncIOMotorClient("mongodb://user:pass@host:27017")
 
     # Init beanie with the Product document class
-    await init_beanie(database=client.db_name, document_models=Document.__subclasses__())
+    await init_beanie(
+        database=client.db_name, document_models=Document.__subclasses__()
+    )
