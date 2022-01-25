@@ -11,6 +11,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from pymongo.errors import DuplicateKeyError
 
 from documents import Customers, Message
+from utils.database import create_msg_document
 
 logger = logging.getLogger()
 
@@ -51,25 +52,7 @@ class Backup(commands.Cog):
                         )
                     )
 
-                file_paths = []
-                if message.attachments:
-                    for i, attachment in enumerate(message.attachments):
-                        original = attachment.filename.split(".")
-                        file_name = f"files/{ctx.guild.id}/{message.channel.id}/{message.id}_{original[0]}_{i}.{original[1]}"
-                        file_paths.append(file_name)
-                        os.makedirs(os.path.dirname(file_name), exist_ok=True)
-                        await attachment.save(file_name)
-
-                documents.append(
-                    Message(
-                        name=message.author.name,
-                        content=message.content,
-                        timestamp=message.created_at,
-                        message_id=message.id,
-                        channel_id=message.channel.id,
-                        attachments=file_paths if file_paths else None,
-                    )
-                )
+                documents.append(await create_msg_document(ctx.guild, message))
             if documents:
                 await Message.insert_many(documents)
 

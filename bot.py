@@ -8,9 +8,11 @@ from beanie import init_beanie
 from discord import RawMessageDeleteEvent, RawMessageUpdateEvent
 from discord.abc import GuildChannel
 from discord.ext.commands import Bot
+from motor.motor_asyncio import AsyncIOMotorDatabase
 from pymongo.errors import ServerSelectionTimeoutError
 
-from documents import Customers
+from documents import Customers, Message
+from utils.database import create_msg_document
 
 logger = logging.getLogger()
 intents = discord.Intents(
@@ -56,12 +58,11 @@ class BackupBot(Bot):
 
     async def on_message(self, message: discord.Message):
         """Back up new messages."""
-        # await Message(
-        #     name=message.name,
-        #     content=message.content,
-        #     timestamp=message.created_at,
-        # ).insert()
         await self.process_commands(message)
+        await Message.init_model(
+            AsyncIOMotorDatabase(self.client, str(message.guild.id)), False
+        )
+        await (await create_msg_document(message.guild, message)).insert()
 
     async def on_raw_message_delete(self, payload: RawMessageDeleteEvent):
         """Remove deleted messages from the database."""
