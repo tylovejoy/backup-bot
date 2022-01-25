@@ -35,7 +35,7 @@ class BackupBot(Bot):
     async def database_init(self):
         """Initialze MongoDB connection."""
         self.client = motor.motor_asyncio.AsyncIOMotorClient(
-            f"mongodb+srv://backup-bot:{DB_PASSWORD}@mapbot.oult0.mongodb.net/doombot?retryWrites=true&w=majority"
+            f"mongodb+srv://backup-bot:{DB_PASSWORD}@mapbot.oult0.mongodb.net/customers?retryWrites=true&w=majority"
         )
 
         try:
