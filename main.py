@@ -22,6 +22,8 @@ bot = BackupBot()
 
 @bot.command()
 async def backup(ctx: discord.ext.commands.Context):
+    """Initial back up action."""
+    # TODO: Make sure this can only happen exactly ONCE
     for channel in ctx.guild.channels:
 
         # Ignore non text channels
