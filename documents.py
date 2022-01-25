@@ -4,7 +4,7 @@ from os import environ
 from typing import List
 
 import motor
-from beanie import Document, init_beanie
+from beanie import Document, Indexed, init_beanie
 from pymongo.errors import ServerSelectionTimeoutError
 
 logger = logging.getLogger()
@@ -27,6 +27,14 @@ class Channels(Document):
     category_name: str
 
 
+class Customers(Document):
+    """Model for customers."""
+
+    guild_id: Indexed(int, unique=True)
+    name: str
+    backup: bool
+
+
 DB_PASSWORD = environ["DB_PASSWORD"]
 
 
@@ -37,9 +45,7 @@ async def database_init():
     )
 
     try:
-        await init_beanie(
-            database=client.backup, document_models=Document.__subclasses__()
-        )
+        await init_beanie(database=client.customers, document_models=[Customers])
     except ServerSelectionTimeoutError:
         logger.critical("Connecting database - FAILED!!!")
 

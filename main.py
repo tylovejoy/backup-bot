@@ -1,11 +1,8 @@
 import logging
+import os
 from os import environ
 
-import discord
-from discord.ext import commands
-
 from bot import BackupBot
-from documents import Message
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -19,30 +16,9 @@ logger.addHandler(consoleHandle)
 
 bot = BackupBot()
 
-
-@bot.command()
-async def backup(ctx: discord.ext.commands.Context):
-    """Initial back up action."""
-    # TODO: Make sure this can only happen exactly ONCE
-    for channel in ctx.guild.channels:
-
-        # Ignore non text channels
-        if channel.type != discord.ChannelType.text:
-            continue
-
-        messages = await channel.history(limit=None, oldest_first=True).flatten()
-        documents = []
-
-        for message in messages:
-            documents.append(
-                Message(
-                    name=message.name,
-                    content=message.content,
-                    timestamp=message.created_at,
-                )
-            )
-        await Message.insert_many(documents)
-
+for f in os.listdir("./cogs"):
+    if f.endswith(".py"):
+        bot.load_extension("cogs." + f[:-3])
 
 TOKEN = environ["TOKEN"]
 bot.run(TOKEN)

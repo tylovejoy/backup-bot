@@ -20,7 +20,7 @@ description = "Back up and restore your entire server."
 
 class BackupBot(Bot):
     def __init__(self):
-        super().__init__(intents=intents, description=description, command_prefix=";;")
+        super().__init__(intents=intents, description=description, command_prefix="?")
 
     @staticmethod
     async def on_connect():
@@ -33,11 +33,12 @@ class BackupBot(Bot):
 
     async def on_message(self, message: discord.Message):
         """Back up new messages."""
-        await Message(
-            name=message.name,
-            content=message.content,
-            timestamp=message.created_at,
-        ).insert()
+        # await Message(
+        #     name=message.name,
+        #     content=message.content,
+        #     timestamp=message.created_at,
+        # ).insert()
+        await self.process_commands(message)
 
     async def on_raw_message_delete(self, payload: RawMessageDeleteEvent):
         """Remove deleted messages from the database."""
