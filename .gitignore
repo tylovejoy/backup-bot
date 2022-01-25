@@ -3,3 +3,4 @@ venv
 /.github/
 __pycache__
 .vscode
+files

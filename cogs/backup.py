@@ -44,16 +44,16 @@ class Backup(commands.Cog):
                         os.makedirs(os.path.dirname(file_name), exist_ok=True)
                         await attachment.save(file_name)
 
-                logger.info(file_paths)
-                d = Message(
-                    name=message.author.name,
-                    content=message.content,
-                    timestamp=message.created_at,
-                    message_id=message.id,
-                    channel_id=message.channel.id,
-                    attachment=file_paths,
+                documents.append(
+                    Message(
+                        name=message.author.name,
+                        content=message.content,
+                        timestamp=message.created_at,
+                        message_id=message.id,
+                        channel_id=message.channel.id,
+                        attachments=file_paths if file_paths else None,
+                    )
                 )
-                documents.append(d)
             if documents:
                 await Message.insert_many(documents)
 

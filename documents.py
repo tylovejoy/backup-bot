@@ -19,7 +19,7 @@ class Message(Document):
     content: str
     timestamp: datetime
     channel_id: int
-    attachments: Optional[List]
+    attachments: Optional[List[Optional[pathlib.Path]]]
 
 
 class Channels(Document):
