@@ -66,6 +66,12 @@ class BackupBot(Bot):
 
     async def on_raw_message_delete(self, payload: RawMessageDeleteEvent):
         """Remove deleted messages from the database."""
+        await Message.init_model(
+            AsyncIOMotorDatabase(self.client, str(payload.guild_id)), False
+        )
+        message = await Message.find_one(Message.message_id == payload.message_id)
+        if message:
+            await message.delete()
 
     async def on_raw_message_edit(self, payload: RawMessageUpdateEvent):
         """Edit messages in the database."""
