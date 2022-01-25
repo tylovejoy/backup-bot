@@ -1,4 +1,5 @@
 import logging
+import os
 from os import environ
 from typing import Sequence
 
@@ -75,6 +76,29 @@ class BackupBot(Bot):
 
     async def on_raw_message_edit(self, payload: RawMessageUpdateEvent):
         """Edit messages in the database."""
+        await Message.init_model(
+            AsyncIOMotorDatabase(self.client, str(payload.guild_id)), False
+        )
+        message = await Message.find_one(Message.message_id == payload.message_id)
+        if not message:
+            return
+
+        data = payload.data
+        # TODO: this is duplicated code.
+        file_paths = []
+        if data["attachments"]:
+            for i, attachment in enumerate(data["attachments"]):
+                original = attachment["filename"].split(".")
+                file_name = (
+                    f"files/{payload.guild_id}/{payload.channel_id}/"
+                    f"{payload.message_id}_{original[0]}_{i}.{original[1]}"
+                )
+                file_paths.append(file_name)
+                os.makedirs(os.path.dirname(file_name), exist_ok=True)
+                await attachment.save(file_name)
+        message.content = data["content"]
+        message.attachments = file_paths if file_paths else None
+        await message.save()
 
     async def on_guild_channel_create(self, channel: GuildChannel):
         """Add new guild channels."""
