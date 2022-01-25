@@ -1,12 +1,9 @@
 import logging
 import pathlib
 from datetime import datetime
-from os import environ
 from typing import List, Optional
 
-import motor
-from beanie import Document, Indexed, init_beanie
-from pymongo.errors import ServerSelectionTimeoutError
+from beanie import Document, Indexed
 
 logger = logging.getLogger()
 

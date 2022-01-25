@@ -1,8 +1,5 @@
 import asyncio
-import errno
 import logging
-import os
-from pathlib import Path
 
 import discord
 from discord.ext import commands
