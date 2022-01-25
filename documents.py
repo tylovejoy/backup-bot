@@ -1,7 +1,8 @@
 import logging
+import pathlib
 from datetime import datetime
 from os import environ
-from typing import List
+from typing import List, Optional
 
 import motor
 from beanie import Document, Indexed, init_beanie
@@ -13,11 +14,12 @@ logger = logging.getLogger()
 class Message(Document):
     """Model for messages."""
 
-    name: int
+    name: str
+    message_id: int
     content: str
     timestamp: datetime
-    channel_name: str
-    attachment: List[str]
+    channel_id: int
+    attachments: Optional[List]
 
 
 class Channels(Document):
@@ -25,6 +27,7 @@ class Channels(Document):
 
     name: str
     category_name: str
+    channel_id: int
 
 
 class Customers(Document):
@@ -33,21 +36,3 @@ class Customers(Document):
     guild_id: Indexed(int, unique=True)
     name: str
     backup: bool
-
-
-DB_PASSWORD = environ["DB_PASSWORD"]
-
-
-async def database_init():
-    """Initialze MongoDB connection."""
-    client = motor.motor_asyncio.AsyncIOMotorClient(
-        f"mongodb+srv://mapbot:{DB_PASSWORD}@mapbot.oult0.mongodb.net/doombot?retryWrites=true&w=majority"
-    )
-
-    try:
-        await init_beanie(database=client.customers, document_models=[Customers])
-    except ServerSelectionTimeoutError:
-        logger.critical("Connecting database - FAILED!!!")
-
-    else:
-        logger.info("Connecting database - SUCCESS!")

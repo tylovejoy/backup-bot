@@ -16,6 +16,7 @@ logger.addHandler(consoleHandle)
 
 bot = BackupBot()
 
+# Load cogs
 for f in os.listdir("./cogs"):
     if f.endswith(".py"):
         bot.load_extension("cogs." + f[:-3])

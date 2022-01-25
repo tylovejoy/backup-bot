@@ -1,12 +1,16 @@
 import logging
+from os import environ
 from typing import Sequence
 
 import discord
+import motor
+from beanie import init_beanie
 from discord import RawMessageDeleteEvent, RawMessageUpdateEvent
 from discord.abc import GuildChannel
 from discord.ext.commands import Bot
+from pymongo.errors import ServerSelectionTimeoutError
 
-from documents import Message, database_init
+from documents import Customers
 
 logger = logging.getLogger()
 intents = discord.Intents(
@@ -18,14 +22,33 @@ intents = discord.Intents(
 description = "Back up and restore your entire server."
 
 
+DB_PASSWORD = environ["DB_PASSWORD"]
+
+
 class BackupBot(Bot):
     def __init__(self):
         super().__init__(intents=intents, description=description, command_prefix="?")
+        self.client = None
 
-    @staticmethod
-    async def on_connect():
+    async def database_init(self):
+        """Initialze MongoDB connection."""
+        self.client = motor.motor_asyncio.AsyncIOMotorClient(
+            f"mongodb+srv://mapbot:{DB_PASSWORD}@mapbot.oult0.mongodb.net/doombot?retryWrites=true&w=majority"
+        )
+
+        try:
+            await init_beanie(
+                database=self.client.customers, document_models=[Customers]
+            )
+        except ServerSelectionTimeoutError:
+            logger.critical("Connecting database - FAILED!!!")
+
+        else:
+            logger.info("Connecting database - SUCCESS!")
+
+    async def on_connect(self):
         """Connection to Discord event."""
-        await database_init()
+        await self.database_init()
 
     async def on_ready(self):
         """Bot is ready event."""
