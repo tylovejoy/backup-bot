@@ -12,7 +12,7 @@ from discord.ext.commands import Bot
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pymongo.errors import ServerSelectionTimeoutError
 
-from documents import Customers, Message
+from documents import Customers, Message, Thread
 from utils.database import create_msg_document
 
 logger = logging.getLogger()
@@ -86,7 +86,7 @@ class BackupBot(Bot):
         data = payload.data
         # TODO: this is duplicated code.
         file_paths = []
-        if data["attachments"]:
+        if data.get("attachments"):
             for i, attachment in enumerate(data["attachments"]):
                 original = attachment["filename"].split(".")
                 file_name = (
@@ -96,8 +96,12 @@ class BackupBot(Bot):
                 file_paths.append(file_name)
                 os.makedirs(os.path.dirname(file_name), exist_ok=True)
                 await attachment.save(file_name)
-        message.content = data["content"]
-        message.attachments = file_paths if file_paths else None
+
+            message.attachments = file_paths if file_paths else None
+
+        if data.get("content"):
+            message.content = data["content"]
+
         await message.save()
 
     async def on_guild_channel_create(self, channel: GuildChannel):
@@ -125,3 +129,21 @@ class BackupBot(Bot):
         after: Sequence[discord.Emoji],
     ):
         """Update emojis."""
+
+    async def on_thread_join(self, thread: discord.Thread):
+        """Add threads."""
+        await Message.init_model(
+            AsyncIOMotorDatabase(self.client, str(thread.guild.id)), False
+        )
+
+        message = await Message.find_one(Message.message_id == thread.parent_id)
+        if not message:
+            return
+
+        message.thread = Thread(
+            thread_id=thread.id,
+            name=thread.name,
+            locked=thread.locked,
+            archived=thread.archived,
+        )
+        await message.save()

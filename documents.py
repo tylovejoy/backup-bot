@@ -4,8 +4,18 @@ from datetime import datetime
 from typing import List, Optional
 
 from beanie import Document, Indexed
+from pydantic import BaseModel
 
 logger = logging.getLogger()
+
+
+class Thread(BaseModel):
+    """Model for a Thread."""
+
+    thread_id: int
+    name: str
+    locked: bool
+    archived: bool
 
 
 class Message(Document):
@@ -17,6 +27,7 @@ class Message(Document):
     timestamp: datetime
     channel_id: int
     attachments: Optional[List[Optional[pathlib.Path]]]
+    thread: Optional[Thread]
 
 
 class Channels(Document):
