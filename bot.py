@@ -13,7 +13,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from pymongo.errors import ServerSelectionTimeoutError
 
 from documents import Customers, Message, Thread
-from utils.database import create_msg_document
+from utils.database import create_msg_document, save_attachments
 
 logger = logging.getLogger()
 intents = discord.Intents(
@@ -84,20 +84,13 @@ class BackupBot(Bot):
             return
 
         data = payload.data
-        # TODO: this is duplicated code.
-        file_paths = []
-        if data.get("attachments"):
-            for i, attachment in enumerate(data["attachments"]):
-                original = attachment["filename"].split(".")
-                file_name = (
-                    f"files/{payload.guild_id}/{payload.channel_id}/"
-                    f"{payload.message_id}_{original[0]}_{i}.{original[1]}"
-                )
-                file_paths.append(file_name)
-                os.makedirs(os.path.dirname(file_name), exist_ok=True)
-                await attachment.save(file_name)
-
-            message.attachments = file_paths if file_paths else None
+        file_paths = await save_attachments(
+            data.get("attachments"),
+            payload.guild_id,
+            payload.channel_id,
+            payload.message_id,
+        )
+        message.attachments = file_paths
 
         if data.get("content"):
             message.content = data["content"]
