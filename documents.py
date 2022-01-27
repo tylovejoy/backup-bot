@@ -45,7 +45,7 @@ class Channel(Document):
     channel_id: int
     position: int
     channel_type: str
-    slowmode_delay: int = 0
+    slowmode_delay: Optional[int]
     topic: Optional[str]
     nsfw: Optional[bool]
     permissions_synced: Optional[bool]

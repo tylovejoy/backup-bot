@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from turtle import position
 
 import discord
 from discord.ext import commands
@@ -19,20 +20,28 @@ class Backup(commands.Cog):
 
     async def _backup_channels(self, ctx: Context):
         """Back up all channels."""
+
         await Channel.init_model(
             AsyncIOMotorDatabase(self.bot.client, str(ctx.guild.id)), False
         )
-        for channel in enumerate(ctx.guild.channels):
-            if isinstance(channel.type, discord.ChannelType.category):
+
+        for channel in ctx.guild.channels:  # type: discord.abc.GuildChannel
+            document = Channel(
+                name=channel.name,
+                channel_id=channel.id,
+                position=channel.position,
+                channel_type=str(channel.type),
+            )
+            if document.channel_type == "category":
                 pass
 
-            if isinstance(channel.type, discord.ChannelType.text):
+            if document.channel_type == "text":
                 pass
 
-            if isinstance(channel.type, discord.ChannelType.voice):
+            if document.channel_type == "voice":
                 pass
 
-            if isinstance(channel.type, discord.ChannelType.stage_voice):
+            if document.channel_type == "stage_voice":
                 pass
 
     async def _backup_messages(self, ctx: Context, info_msg: discord.Message):
