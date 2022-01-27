@@ -7,7 +7,7 @@ from discord.ext.commands import Context
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pymongo.errors import DuplicateKeyError
 
-from documents import Customers, Message
+from documents import Channel, Customers, Message
 from utils.database import create_msg_document
 
 logger = logging.getLogger()
@@ -16,6 +16,24 @@ logger = logging.getLogger()
 class Backup(commands.Cog):
     def __init__(self, bot):
         self.bot = bot  # sets the client variable so we can use it in cogs
+
+    async def _backup_channels(self, ctx: Context):
+        """Back up all channels."""
+        await Channel.init_model(
+            AsyncIOMotorDatabase(self.bot.client, str(ctx.guild.id)), False
+        )
+        for channel in enumerate(ctx.guild.channels):
+            if isinstance(channel.type, discord.ChannelType.category):
+                pass
+
+            if isinstance(channel.type, discord.ChannelType.text):
+                pass
+
+            if isinstance(channel.type, discord.ChannelType.voice):
+                pass
+
+            if isinstance(channel.type, discord.ChannelType.stage_voice):
+                pass
 
     async def _backup_messages(self, ctx: Context, info_msg: discord.Message):
         """Back up all messages."""

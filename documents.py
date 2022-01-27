@@ -30,12 +30,26 @@ class Message(Document):
     thread: Optional[Thread]
 
 
+class ChannelCategoryChildren(BaseModel):
+    """Model for list of category children."""
+
+    stage_channels: List[Optional[str]] = []
+    text_channels: List[Optional[str]] = []
+    voice_channels: List[Optional[str]] = []
+
+
 class Channel(Document):
     """Model for channels."""
 
     name: str
-    category_name: str
     channel_id: int
+    position: int
+    channel_type: str
+    slowmode_delay: int = 0
+    topic: Optional[str]
+    nsfw: Optional[bool]
+    permissions_synced: Optional[bool]
+    children: Optional[ChannelCategoryChildren]
 
 
 class Customers(Document):
