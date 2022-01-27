@@ -30,7 +30,7 @@ class Message(Document):
     thread: Optional[Thread]
 
 
-class Channels(Document):
+class Channel(Document):
     """Model for channels."""
 
     name: str
